@@ -1,68 +1,86 @@
-import { test, expect } from '@playwright/test';
-  
-test.describe('Test spec', async () => {
-  
-  test('valid test', async ({ page }) => {
-    await page.goto('/')
-    await page.getByRole('button', { name: 'Sign In' }).click();
-    await page.getByRole('button', { name: 'Registration' }).click();
-    await page.locator('#signupName').fill('Tom');
-    await page.locator('#signupLastName').fill('Rid');
-    await page.getByLabel('Name').fill('aqa-tomRid3@gmail.com');
-    await page.getByRole('textbox', { name: 'Password', exact: true }).fill('Qa123456!');
-    await page.locator('[name = "repeatPassword"]').fill('Qa123456!');
-    await page.getByRole('button', { name: 'Register' }).click();
-    await expect(page.locator('#userNavDropdown')).toBeVisible();
+import { test } from "@playwright/test";
+import { Basic } from "../src/basic";
+import { HeaderMenu } from "../src/headerMenu";
+import { RegistrationForm } from "../src/registrationForm";
+import { Account } from "../src/account";
+
+test.describe("Test spec", async () => {
+  test("valid test", async ({ page }) => {
+    const basic = new Basic(page);
+    const header = new HeaderMenu(page);
+    const registrationForm = new RegistrationForm(page);
+    const account = new Account(page);
+
+    await basic.openPage("/");
+    await header.openRegistrationForm();
+
+    await registrationForm.enterUserName("Tom");
+    await registrationForm.enterUsersignupLastName("Rid");
+    await registrationForm.enterUsersEmail("aqa-tomRid3@gmail.com");
+    await registrationForm.enterUsersPassword("Qa123456!");
+    await registrationForm.enterUsersRePassword("Qa123456!");
+    await registrationForm.clickOnRegistrationButton();
+    await account.assertAccountMenu();
 
     //Remove data
-    await page.getByText('Settings').last().click()
-    await page.getByText('Remove my account').click()
-    await page.getByText('Remove').last().click()
+    await account.removeAccount();
 
-    await page.close()
+    await page.close();
   });
 
-  test('name shold containt more that 2 characters', async({ page }) => {
-    await page.goto('/')
-    await page.getByRole('button', { name: 'Sign In' }).click();
-    await page.getByRole('button', { name: 'Registration' }).click();
+  test("name shold containt more that 2 characters", async ({ page }) => {
+    const basic = new Basic(page);
+    const header = new HeaderMenu(page);
+    const registrationForm = new RegistrationForm(page);
 
-    await page.locator('#signupName').fill('Q');
-    await page.keyboard.press('Tab');
+    await basic.openPage("/");
+    await header.openRegistrationForm();
 
-    await expect(page.locator('.invalid-feedback').first()).toHaveText('Name has to be from 2 to 20 characters long')
+    await registrationForm.enterUserName("Q");
 
-    await page.close()
-  })
+    await registrationForm.enterUsersignupLastName("Q");
+    await registrationForm.assertErrorMessage(
+      "Name has to be from 2 to 20 characters long"
+    );
 
-  test('last name shold containt more that 2 characters', async({ page }) => {
-    await page.goto('/')
-    await page.getByRole('button', { name: 'Sign In' }).click();
-    await page.getByRole('button', { name: 'Registration' }).click();
+    await page.close();
+  });
 
-    await page.locator('#signupLastName').fill('Q');
-    await page.keyboard.press('Tab');
+  test("last name shold containt more that 2 characters", async ({ page }) => {
+    const basic = new Basic(page);
+    const header = new HeaderMenu(page);
+    const registrationForm = new RegistrationForm(page);
 
-    await expect(page.locator('.invalid-feedback').first()).toHaveText('Last name has to be from 2 to 20 characters long')
+    await basic.openPage("/");
+    await header.openRegistrationForm();
 
-    await page.close()
-  })
+    await registrationForm.enterUsersignupLastName("Q");
 
-  test('user can register only with valid email', async({ page }) => {
-    await page.goto('/')
-    await page.getByRole('button', { name: 'Sign In' }).click();
-    await page.getByRole('button', { name: 'Registration' }).click();
+    await registrationForm.pressTabButton();
+    await registrationForm.assertErrorMessage(
+      "Last name has to be from 2 to 20 characters long"
+    );
 
-    await page.locator('#signupName').fill('Name');
-    await page.locator('#signupLastName').fill('LastName');
-    await page.getByLabel('Name').fill('aqa-tomRid');
-    await page.getByRole('textbox', { name: 'Password', exact: true }).fill('Qa123456!');
-    await page.locator('[name = "repeatPassword"]').fill('Qa123456!');
+    await page.close();
+  });
 
-    await expect(page.locator('.invalid-feedback').first()).toHaveText('Email is incorrect')
+  test("user can register only with valid email", async ({ page }) => {
+    const basic = new Basic(page);
+    const header = new HeaderMenu(page);
+    const registrationForm = new RegistrationForm(page);
 
-    await expect(page.getByRole('button', { name: 'Register' })).toBeDisabled()
+    await basic.openPage("/");
+    await header.openRegistrationForm();
 
-    await page.close()
-  })
+    await registrationForm.enterUserName("Name");
+    await registrationForm.enterUsersignupLastName("LastName");
+    await registrationForm.enterUsersEmail("aqa-tomRid");
+    await registrationForm.enterUsersPassword("Qa123456!");
+    await registrationForm.enterUsersRePassword("Qa123456!");
+
+    await registrationForm.assertErrorMessage("Email is incorrect");
+    await registrationForm.assertButton();
+
+    await page.close();
+  });
 });
