@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "testRun": "npx playwright test --headed -c playwright-prod.config.js",
-    "test:hw18": "npx playwright test homeWork18 --headed -c playwright-prod.config.js & npx playwright show-report"
+    "test:hw18": "npx playwright test homeWork18 --headed -c playwright-prod.config.js & npx playwright show-report",
+    "test:hw19": "npx playwright test playwrightNetWork --headed -c playwright-prod.config.js & npx playwright show-report"
   },
   "keywords": [],
   "author": "",
